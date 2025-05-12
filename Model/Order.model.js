@@ -10,7 +10,8 @@ const orderSchema = new mongoose.Schema({
   ],
   totalPrice: { type: Number, required: true },
   status: { type: String, default: "pending" }, // ممكن تبقى: pending - paid - canceled
-  createdAt: { type: Date, default: Date.now }
-});
+  createdAt: { type: Date, default: Date.now },
+
+},{timestamps:true});
 
 export const OrderModel = mongoose.model("Order", orderSchema);

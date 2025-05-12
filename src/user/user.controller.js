@@ -1,36 +1,44 @@
 import { userModel } from "../../Model/user.model.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import upload from "../../MiddleWare/uploadImages.js";
 
- export const signUp = async(req,res) =>{
-try{
-    const{name,email,password}=req.body
 
-    console.log("name",name)
-    console.log("email",email)
-    console.log("password",password)
-const ExistingEmail=await userModel.findOne({email})
-if(ExistingEmail){
-    res.status(400).json({message:"user already registered",success:false})
-}
 
-const salt = await bcrypt.genSalt(10);
-const hashedPassword = await bcrypt.hash(password, salt);
+export const signUp = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
 
-const newUser = new userModel({
-    name,
-    email,
-    password: hashedPassword,
-    role:"user",
-  });
-  await newUser.save();
+    const image = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+      : ``; 
 
- return res.status(201).json({ message: "User registered successfully",success:true });
-}
- catch (error) {
-  console.error("Server Error:", error); // طباعة الخطأ في الـ terminal
- return res.status(500).json({ message: "Server error", error: error.message });}
-}
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already registered', success: false });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new userModel({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      role: 'admin',
+      image,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully', success: true, newUser });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 
 export const signIn = async (req, res) => {
   try {
@@ -62,6 +70,8 @@ export const signIn = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        image: user.image||``
+,
       },
     });
   } catch (error) {
@@ -89,6 +99,8 @@ export const signIn = async (req, res) => {
       });
     }
   };
+
+  
   export const deleteUser = async (req, res) => {
     try {
       const { id } = req.params;
@@ -120,7 +132,7 @@ export const signIn = async (req, res) => {
       const { userId } = req.params;
       const { role } = req.body;
   
-      if (!['user', 'admin'].includes(role)) {
+      if (!['user', 'admin',"moderator"].includes(role)) {
         return res.status(400).json({ success: false, message: "Invalid role provided" });
       }
   
@@ -146,8 +158,44 @@ export const signIn = async (req, res) => {
   
 
 export const getUser = async (req, res) => {
+ try {
   const { id } = req.params;
 const user=await userModel.findById(id)
 
 res.status(200).json({message:"userAho",success:true,data:user})
+ } catch (error) {
+  console.log(error)
+ }
 }
+
+
+
+export const updateUserImage = async (req, res) => {
+  try {
+    const userId=req.userId
+    const { id } = req.params;
+
+    if(userId!==id){
+      return res.status(400).json({message:"You do not user"})
+    }
+    // تحقق من وجود صورة مرفوعة
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image provided' });
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      id,
+      { image: `/uploads/${req.file.filename}` }, // نحفظ المسار النسبي
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({data:updatedUser,success:true});
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

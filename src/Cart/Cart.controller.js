@@ -6,29 +6,33 @@ export const addToCart=  async (req, res) => {
     const userId = req.userId;
     const { productId, quantity } = req.body;
 
-    if (!productId) {
+      if (!productId) {
       return res.status(400).json({ message: "Product ID is required" });
     }
 
     const parsedQuantity = Number(quantity) || 1;
-    if (parsedQuantity <= 0) {
+    if (parsedQuantity<= 0) {
       return res.status(400).json({ message: "Invalid quantity" });
     }
 
     let cart = await CartModel.findOne({ userId });
 
     if (!cart) {
-      cart = new CartModel({ userId, products: [{ productId, quantity: parsedQuantity }] });
-    } else {
+      cart = new CartModel({ userId, products: [{ productId, quantity:parsedQuantity }] });
+    }
+
+    else{
       const productIndex = cart.products.findIndex(
         (p) => p.productId.toString() === productId
       );
 
       if (productIndex > -1) {
         cart.products[productIndex].quantity += parsedQuantity;
-      } else {
+      }
+      else {
         cart.products.push({ productId, quantity: parsedQuantity });
       }
+
     }
 
     await cart.save();
@@ -37,6 +41,7 @@ export const addToCart=  async (req, res) => {
     res.status(500).json({ message: "Error adding to cart", error: err.message });
   }
 };
+
 
 export const getCart= async (req, res) => {
   const userId = req.userId;
@@ -84,10 +89,8 @@ export const getCart= async (req, res) => {
 };
 
 
-
-
 export const deleteProductCart=async (req, res) => {
-  const userId = req.userId; // جاي من التوثيق (auth middleware)
+  const userId = req.userId;
   const { id } = req.params;
 
   try {
@@ -104,6 +107,7 @@ export const deleteProductCart=async (req, res) => {
     res.status(200).json({ message: 'Item removed from cart', data: cart, success: true });
   } catch (error) {
     console.error(error);
+    
     res.status(500).json({ message: 'Server error' });
   }
 };

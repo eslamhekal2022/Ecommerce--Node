@@ -11,8 +11,8 @@ export const authMiddleware = (req, res, next) => {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     
     req.user = verified;
-    
     req.userId=verified.userId;
+    req.userRole=verified.role;
     
     next();
 
@@ -22,3 +22,10 @@ export const authMiddleware = (req, res, next) => {
   }
   
 };
+export function isAdmin(req, res, next) {
+  if (req.userRole === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({ success: false, message: 'Access denied. Admins only.' });
+  }
+}
