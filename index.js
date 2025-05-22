@@ -22,19 +22,15 @@ import { connectDB } from "./dbConnection/dbConnection.js";
 dotenv.config();
 connectDB();
 
-// ⚙️ APP & SERVER SETUP
 const app = express();
-const server = http.createServer(app); // استخدم http.createServer بدلاً من app.listen
-
-// ⚡ SOCKET.IO SETUP
+const server = http.createServer(app); 
 const io = new Server(server, {
   cors: {
-    origin: "*", // أو حدد الدومين بتاع الفرونت
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-// 🧠 Make io available in every request
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -64,19 +60,9 @@ app.use(WishListRouter);
 app.use(OrderRouter);
 app.use(userReviews);
 app.use(ContactRouter);
-
-// 🧩 STATIC FRONTEND SETUP
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve static files from the FE folder
-app.use(express.static(path.join(__dirname, "../FE")));
-
-// Handle any route that doesn't match an API route
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../FE/public", "index.html"));
+app.get('/', (req, res) => {
+  res.send('🚀 Welcome to the Ecommerce API!');
 });
 
-// 🚀 START SERVER
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
