@@ -74,7 +74,7 @@ app.use(express.static(path.join(__dirname, "../FE")));
 
 // Handle any route that doesn't match an API route
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../FE", "index.html"));
+  res.sendFile(path.resolve(__dirname, "../FE/public", "index.html"));
 });
 
 // 🚀 START SERVER
