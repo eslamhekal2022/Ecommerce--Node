@@ -4,6 +4,8 @@ import cors from "cors";
 import morgan from "morgan";
 import http from "http";
 import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // 👇 ROUTES
 import userRouter from "./src/user/user.routes.js";
@@ -63,9 +65,16 @@ app.use(OrderRouter);
 app.use(userReviews);
 app.use(ContactRouter);
 
-// ✅ TEST ROUTE
-app.get("/", (req, res) => {
-  res.send("API is running with Socket.IO...");
+// 🧩 STATIC FRONTEND SETUP
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from the FE folder
+app.use(express.static(path.join(__dirname, "../FE")));
+
+// Handle any route that doesn't match an API route
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../FE", "index.html"));
 });
 
 // 🚀 START SERVER
