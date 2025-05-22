@@ -4,10 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import http from "http";
 import { Server } from "socket.io";
-import path from "path";
-import { fileURLToPath } from "url";
 
-// 👇 ROUTES
 import userRouter from "./src/user/user.routes.js";
 import ProductRouter from "./src/product/product.routes.js";
 import { CartRouter } from "./src/Cart/cart.routes.js";
@@ -49,7 +46,9 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
-app.use(cors());
+app.use(cors({
+  origin: 'https://ecommerce-front-chi-five.vercel.app',
+}));
 app.use(morgan("dev"));
 
 // 📁 ROUTES
