@@ -62,6 +62,10 @@ app.use(ContactRouter);
 app.get('/', (req, res) => {
   res.send('🚀 Welcome to the Ecommerce API!');
 });
-
+setInterval(() => {
+  fetch("https://your-replit-url.replit.dev").catch((err) =>
+    console.log("Ping failed:", err)
+  );
+}, 60 * 1000);
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
