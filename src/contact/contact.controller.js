@@ -9,11 +9,7 @@ export const addContact = async (req, res) => {
       const contact = new Contact({ userId, message });
       await contact.save();
   
-      req.io.emit("new-contact", {
-        message: "📩 رسالة جديدة من مستخدم",
-        userId,
-        contactId: contact._id,
-      });
+     
   
       res.status(200).json({ message: "Contact is PowerFul", success: true });
     } catch (error) {

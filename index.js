@@ -27,7 +27,7 @@ app.use('/uploads', express.static('uploads'));
 const allowedOrigins = [
   'http://localhost:3000',
   "http://localhost:5173",
-  'https://ecommerce-front-chi-five.vercel.app',
+  "https://ecommerce-front-flax-ten.vercel.app"
 ];
 
 app.use(cors({
@@ -57,11 +57,7 @@ app.get('/', (req, res) => {
 });
 
 // 🔄 KEEP ALIVE PING (اختياري حسب الحاجة)
-setInterval(() => {
-  fetch("https://your-replit-url.replit.dev").catch((err) =>
-    console.log("Ping failed:", err)
-  );
-}, 60 * 1000);
+
 
 // 🚀 START SERVER
 const PORT = process.env.PORT || 5000;
