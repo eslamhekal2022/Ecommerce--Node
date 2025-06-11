@@ -4,25 +4,46 @@ import { userModel } from "../../Model/user.model.js";
 
 export const addProduct = async (req, res) => {
   try {
-    const { name, description, price,category } = req.body;
+    const {
+      name_en, name_ar,
+      description_en, description_ar,
+      price, category
+    } = req.body;
 
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "الرجاء تحميل صورة واحدة على الأقل" });
+      return res.status(400).json({ message: "يرجى رفع صورة واحدة على الأقل" });
     }
 
-    // حفظ مسارات الصور
     const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
 
-    // إنشاء المنتج
-    const newItem = new ProductModel({ name, description, price,category, images: imagePaths });
-    await newItem.save();
+    const newProduct = new ProductModel({
+      name: { en: name_en, ar: name_ar },
+      description: { en: description_en, ar: description_ar },
+      price,
+      category,
+      images: imagePaths,
+    });
 
-    res.status(201).json({ success: true, message: "تمت إضافة العنصر بنجاح", newItem });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "حدث خطأ أثناء الإضافة", error });
+    await newProduct.save();
+     name_en, name_ar,
+      description_en, description_ar,
+      price, category
+    console.log("name_en",name_en)
+    console.log("name_ar",name_ar)
+    console.log("description_en",description_en)
+    console.log("description_en",description_en)
+    console.log("price",price)
+    console.log("category",category)
+  
+
+    res.status(201).json({ success: true, message: "تمت إضافة المنتج", newProduct });
+  } catch (err) {
+    res.status(500).json({ message: "فشل الإضافة", error: err });
+
+    console.log(err)
   }
 };
+
 
 export const getAllProducts=async (req, res) => {
   const allProducts = await ProductModel.find()
@@ -34,7 +55,7 @@ export const getAllProducts=async (req, res) => {
 export const removeProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
+console.log("idPorduct",id)
     const product = await ProductModel.findByIdAndDelete(id);
 
     if (!product) {
@@ -230,3 +251,17 @@ export const deleteReview = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+
+
+
+export const deleteAllProducts=async(req,res)=>{
+  try {
+    const deleteAll=await ProductModel.deleteMany()
+    res.status(200).json({message:"all products is deleted",success:true})
+  } catch (error) {
+        res.status(404).json({message:"what happened",success:false})
+
+  }
+}
