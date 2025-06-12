@@ -86,18 +86,28 @@ export const productDetails= async (req, res) => {
   }
 }
 
-export const searchProducts =  async (req, res) => {
+export const searchProducts = async (req, res) => {
   try {
     const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ success: false, message: "Query parameter is required" });
+    }
+
     const products = await ProductModel.find({
-      name: { $regex: query, $options: 'i' },
-      category: { $regex: query, $options: 'i' },
+      $or: [
+        { 'name.en': { $regex: query, $options: 'i' } },
+        { 'name.ar': { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } }
+      ]
     });
+
     res.status(200).json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ message: "Error searching for products", error });
   }
 };
+
 
 export const getCategoryProduct= async (req, res) => {
   try {
